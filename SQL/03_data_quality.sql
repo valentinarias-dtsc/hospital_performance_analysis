@@ -7,7 +7,7 @@
 -- =========================
 -- 1. Conteo total de filas
 -- =========================
-SELECT COUNT(*) AS total_rows
+SELECT COUNT(*) AS filas_totales
 FROM hospital_performance_raw;
 
 
@@ -15,7 +15,7 @@ FROM hospital_performance_raw;
 -- 2. Duplicados por clave primaria
 -- =========================
 -- Validación: hospital_id debería ser único
-SELECT hospital_id, COUNT(*) AS occurrences
+SELECT hospital_id, COUNT(*) AS ids_duplicados
 FROM hospital_performance_raw
 GROUP BY hospital_id
 HAVING COUNT(*) > 1;
@@ -80,7 +80,7 @@ FROM hospital_performance_raw;
 -- =========================
 -- 4. Validación de valores negativos
 -- =========================
-SELECT *
+SELECT COUNT(*) AS datos_con_tasas_negativas
 FROM hospital_performance_raw
 WHERE 
     mortality_rate < 0 OR
@@ -88,13 +88,14 @@ WHERE
     infection_rate < 0 OR
     average_treatment_cost < 0 OR
     waiting_time_minutes < 0 OR
-    average_length_of_stay < 0;
+    average_length_of_stay < 0 OR 
+    doctor_patient_ratio <= 0;
 
 
 -- =========================
 -- 5. Validación de rangos lógicos (tasas)
 -- =========================
-SELECT *
+SELECT COUNT(*) AS datos_con_tasas_encima_de_100
 FROM hospital_performance_raw
 WHERE 
     mortality_rate > 100 OR
@@ -102,38 +103,43 @@ WHERE
     infection_rate > 100;
 
 
-
 -- =========================
 -- 6. Consistencia estructural
 -- =========================
 
 -- ICU beds no debería superar total beds
-SELECT *
+SELECT COUNT(*) AS datos_con_camas_inconsistentes
 FROM hospital_performance_raw
 WHERE icu_beds > total_beds;
 
 -- Staff inconsistente
-SELECT *
+SELECT COUNT(*) AS Datos_con_doctores_negativos
 FROM hospital_performance_raw
-WHERE total_doctors <= 0 OR doctor_patient_ratio <= 0;
+WHERE total_doctors <= 0;
 
 
 -- =========================
--- 7. Verificación básica de métricas
+-- 7. Análisis de proporción de camas ICU
 -- =========================
 SELECT
-    MIN(waiting_time_minutes) AS min_waiting,
-    MAX(waiting_time_minutes) AS max_waiting,
-    MIN(average_treatment_cost) AS min_cost,
-    MAX(average_treatment_cost) AS max_cost
-FROM hospital_performance_raw;
+    MIN((icu_beds::FLOAT / total_beds) * 100) AS icu_pct_minimo,
+    PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY (icu_beds::FLOAT / total_beds) * 100) AS icu_pct_q1,
+    PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY (icu_beds::FLOAT / total_beds) * 100) AS icu_pct_mediana,
+    PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY (icu_beds::FLOAT / total_beds) * 100) AS icu_pct_q3,
+    MAX((icu_beds::FLOAT / total_beds) * 100) AS icu_pct_maximo
+FROM hospital_performance_raw
+WHERE total_beds > 0;
 
 
 -- ============================================
--- Observaciones (completar manualmente)
+-- Observaciones
 -- ============================================
 
--- Ejemplos:
--- - No se detectaron valores NULL en columnas críticas
--- - Se identificaron X inconsistencias en relaciones de camas
--- - Se detectaron valores extremos en costos o tiempos de espera
+-- - No existen duplicados
+-- - No se detectaron valores NULL en ninguna columna
+-- - No se detectaron valores inconsistentes en tasas, radios, ni cantidades
+-- - Se identificaron 226 inconsistencias en relaciones de camas de terapia intensiva 
+--   sobre el total. Esta cantidad representaría cerca del 4% del dataset.
+-- - Profundizando el análisis, se logró identificar que cerca del 20-25% de los datos 
+--   contienen valores atípicos en los porcentajes de camas de terapia intensiva 
+--   valores normales en hospitales del mundo van desde un 5% hasta un 20% de este tipo de camas, en relación al total.
