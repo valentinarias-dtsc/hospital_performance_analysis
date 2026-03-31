@@ -20,7 +20,7 @@ WITH base AS (
     SELECT *
     FROM hospital_performance_clean
     
-    -- Opcional: excluir inconsistencias graves
+    -- Excluir inconsistencias graves en la cantidad de camas
     WHERE icu_inconsistency_flag = 0
 ),
 
@@ -67,11 +67,11 @@ normalized AS (
         (patient_satisfaction_score - s.min_sat) / NULLIF(s.max_sat - s.min_sat, 0) AS satisfaction_norm,
         
         -- Eficiencia
-        (waiting_time_minutes - s.min_wait) / NULLIF(s.max_wait - s.min_wait, 0) AS waiting_norm,
+        (waiting_time_minutes::NUMERIC - s.min_wait) / NULLIF(s.max_wait - s.min_wait, 0) AS waiting_norm,
         (average_length_of_stay - s.min_los) / NULLIF(s.max_los - s.min_los, 0) AS los_norm,
         
         -- Costos
-        (average_treatment_cost - s.min_cost) / NULLIF(s.max_cost - s.min_cost, 0) AS cost_norm
+        (average_treatment_cost::NUMERIC - s.min_cost) / NULLIF(s.max_cost - s.min_cost, 0) AS cost_norm
         
     FROM base b
     CROSS JOIN stats s
@@ -156,12 +156,3 @@ SELECT
     END AS performance_category
 
 FROM subindex;
-
-
--- ============================================
--- Export HPI dataset to CSV
--- ============================================
-
-COPY hospital_performance_hpi
-TO 'C:/Github/hospital_performance_analysis/data/hospital_performance_hpi.csv'
-CSV HEADER;
