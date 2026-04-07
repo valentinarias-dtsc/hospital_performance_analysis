@@ -5,15 +5,15 @@
 -- ============================================
 
 -- =========================
--- 1. Crear tabla final
+-- 1. Crear tabla con el HPI
 -- =========================
 
-DROP TABLE IF EXISTS hospital_performance_hpi;
+DROP VIEW IF EXISTS hospital_performance_hpi;
 
-CREATE TABLE hospital_performance_hpi AS
+CREATE VIEW hospital_performance_hpi AS
 
 -- =========================
--- 2. Pipeline HPI
+-- 2. Filtro inconsistencias
 -- =========================
 
 WITH base AS (
@@ -124,9 +124,6 @@ subindex AS (
 -- =========================
 SELECT
     hospital_id,
-    hospital_name,
-    city,
-    province,
     
     ROUND(quality_score::numeric, 3) AS quality_score,
     ROUND(efficiency_score::numeric, 3) AS efficiency_score,
