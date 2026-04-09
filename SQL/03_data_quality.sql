@@ -113,9 +113,12 @@ FROM hospital_performance_raw
 WHERE icu_beds > total_beds;
 
 -- Staff inconsistente
-SELECT COUNT(*) AS Datos_con_doctores_negativos
+SELECT COUNT(*) AS datos_con_cantidades_negativas
 FROM hospital_performance_raw
-WHERE total_doctors <= 0;
+WHERE total_doctors <= 0 OR
+      specialists < 0 OR
+      nurses < 0 OR
+      paramedical_staff < 0;
 
 
 -- =========================
