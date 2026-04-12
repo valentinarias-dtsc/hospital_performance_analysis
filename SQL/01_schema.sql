@@ -4,7 +4,7 @@
 -- Proyecto: Hospital Performance Analysis
 -- ============================================
 
-DROP TABLE IF EXISTS hospital_performance_raw;
+DROP TABLE IF EXISTS hospital_performance_raw CASCADE;
 
 CREATE TABLE hospital_performance_raw (
 
@@ -40,10 +40,10 @@ CREATE TABLE hospital_performance_raw (
     average_length_of_stay DOUBLE PRECISION,
 
     emergency_cases INT,
-    average_treatment_cost INT,
-    consultation_fee INT,
-    surgery_cost INT,
-    government_funding INT,
+    average_treatment_cost DOUBLE PRECISION,
+    consultation_fee DOUBLE PRECISION,
+    surgery_cost DOUBLE PRECISION,
+    government_funding DOUBLE PRECISION,
 
     insurance_accepted TEXT,
 

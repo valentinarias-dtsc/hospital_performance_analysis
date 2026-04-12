@@ -8,7 +8,7 @@
 -- 1. Crear tabla con el HPI
 -- =========================
 
-DROP VIEW IF EXISTS hospital_performance_hpi;
+DROP VIEW IF EXISTS hospital_performance_hpi CASCADE;
 
 CREATE VIEW hospital_performance_hpi AS
 
@@ -19,9 +19,6 @@ CREATE VIEW hospital_performance_hpi AS
 WITH base AS (
     SELECT *
     FROM hospital_performance_clean
-    
-    -- Excluir inconsistencias graves en la cantidad de camas
-    WHERE icu_inconsistency_flag = 0
 ),
 
 -- =========================
@@ -133,23 +130,6 @@ SELECT
         0.5 * quality_score +
         0.3 * efficiency_score +
         0.2 * cost_score
-    )::numeric, 3) AS hpi,
-
-    -- Segmentación
-    CASE 
-        WHEN (
-            0.5 * quality_score +
-            0.3 * efficiency_score +
-            0.2 * cost_score
-        ) >= 0.75 THEN 'High Performance'
-        
-        WHEN (
-            0.5 * quality_score +
-            0.3 * efficiency_score +
-            0.2 * cost_score
-        ) >= 0.5 THEN 'Medium Performance'
-        
-        ELSE 'Low Performance'
-    END AS performance_category
+    )::numeric, 3) AS hpi
 
 FROM subindex;

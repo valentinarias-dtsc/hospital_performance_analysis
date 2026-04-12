@@ -8,7 +8,7 @@
 -- 1. Crear tabla CLEAN
 -- =========================
 
-DROP TABLE IF EXISTS hospital_performance_clean;
+DROP TABLE IF EXISTS hospital_performance_clean CASCADE;
 
 CREATE TABLE hospital_performance_clean AS
 SELECT
