@@ -22,7 +22,7 @@ SELECT
     CASE 
         WHEN icu_beds > total_beds THEN 1
         ELSE 0
-    END AS icu_inconsistency_flag,
+    END AS icu_inconsistency_flag
     
     
     -- =========================
@@ -30,20 +30,20 @@ SELECT
     -- =========================
     
     -- Ratio ICU / total beds
-    icu_beds::NUMERIC / NULLIF(total_beds, 0) AS icu_bed_ratio,
+    --icu_beds::NUMERIC / NULLIF(total_beds, 0) AS icu_bed_ratio,
     
     -- Ratio de médicos sobre pacientes
-    total_doctors::NUMERIC / NULLIF(estimated_daily_load, 0) AS doctor_per_patient_ratio,
+    --total_doctors::NUMERIC / NULLIF(estimated_daily_load, 0) AS doctor_per_patient_ratio,
     
     -- Intensidad operativa (uso de infraestructura)
-    surgeries_per_month::NUMERIC / NULLIF(operation_theatres, 0) AS surgeries_per_theatre,
+    --surgeries_per_month::NUMERIC / NULLIF(operation_theatres, 0) AS surgeries_per_theatre,
     
     -- Staff total
-    (total_doctors + nurses + paramedical_staff)::NUMERIC AS total_staff,
+    --(total_doctors + nurses + paramedical_staff)::NUMERIC AS total_staff,
     
     -- Ratio staff / pacientes
-    (total_doctors + nurses + paramedical_staff)::NUMERIC 
-        / NULLIF(estimated_daily_load, 0) AS staff_per_patient_ratio
+    --(total_doctors + nurses + paramedical_staff)::NUMERIC 
+    --    / NULLIF(estimated_daily_load, 0) AS staff_per_patient_ratio
 
 FROM (SELECT 
         *, 
